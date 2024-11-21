@@ -23,7 +23,7 @@ ADD . /SBOM
 RUN apk add --no-cache curl 
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
 RUN trivy fs --format spdx-json --output /sbom.spdx.json /SBOM
-RUN trivy sbom /sbom.spdx.json --severity UNKNOWN,HIGH,CRITICAL --exit-code 1
+RUN trivy sbom /sbom.spdx.json --severity UNKNOWN,HIGH,CRITICAL --db-repository public.ecr.aws/aquasecurity/trivy-db --exit-code 1
 
 FROM $BASE_IMAGE
 RUN apk add curl=8.9.1-r1

@@ -285,6 +285,43 @@ export const DynamicMethods: Record<TokenOperation, MethodSignature[]> = {
       },
     },
     {
+      // Option with token index and single receiver
+      name: 'mintNonFungibleWithURI',
+      inputs: [{ type: 'uint256' }, { type: 'uint256' }, { type: 'address' }, { type: 'bytes' }, { type: 'string' }],
+      map: (poolLocator: PoolLocator, dto: TokenMint) => {
+        if (!poolLocator.isFungible) {
+          const amount = BigInt(dto.amount);
+          if (amount !== BigInt(1)) {
+            throw new BadRequestException('Amount for nonfungible tokens must be 1');
+          }
+          return [
+            computeTokenId(poolLocator),
+            dto.tokenIndex,
+            dto.to,
+            encodeHex(dto.data ?? ''),
+            dto.uri ?? '',
+          ];
+        }
+        return undefined;
+      },
+    },
+    {
+      // Option with token index and single receiver
+      name: 'mintNonFungible',
+      inputs: [{ type: 'uint256' }, { type: 'uint256' }, { type: 'address' }, { type: 'bytes' }],
+      map: (poolLocator: PoolLocator, dto: TokenMint) => {
+        if (!poolLocator.isFungible) {
+          // In the case of a non-fungible token, we parse the value as a whole integer count of NFTs to mint
+          const amount = parseInt(dto.amount);
+          if (amount !== 1) {
+            throw new BadRequestException('Amount for nonfungible tokens must be 1');
+          }
+            return [computeTokenId(poolLocator), dto.tokenIndex, dto.to, encodeHex(dto.data ?? '')];
+        }
+        return undefined;
+      },
+    },
+    {
       // Source: OpenZeppelin extension
       name: 'mint',
       inputs: [{ type: 'address' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'bytes' }],
